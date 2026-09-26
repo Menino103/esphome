@@ -1,0 +1,73 @@
+# =============================================================================
+#  BEISPIEL: So bindest du die Blueprints in deine Geräte-YAML ein.
+#  Diesen Block (packages:) auf oberster Ebene einfügen, z. B. unter esphome:.
+#  Den Ordner "blueprints" neben deine Geräte-YAML legen (auch ins GitHub-Repo!).
+#  Entity-IDs und Widget-IDs anpassen.
+# =============================================================================
+packages:
+  farben: !include blueprints/farben.yaml
+
+  # --- Schlafzimmer: Status-Icons -------------------------------------------
+  ps_fenster_links: !include
+    file: blueprints/status_icon.yaml
+    vars:
+      uid: ps_fenster_links
+      entity: binary_sensor.paddy_schlafen_fensterlinks_contact
+      widget: ps_icon_fenster
+      color_on: farbe_offen
+      color_off: farbe_aus
+
+  ps_tuer: !include
+    file: blueprints/status_icon.yaml
+    vars:
+      uid: ps_tuer
+      entity: binary_sensor.paddy_tuer_contact
+      widget: ps_icon_tuer
+      color_on: farbe_offen
+      color_off: farbe_aus
+
+  # Licht im Raum an? -> am besten eine Lichtgruppe in HA anlegen
+  ps_licht_raum: !include
+    file: blueprints/status_icon.yaml
+    vars:
+      uid: ps_licht_raum
+      entity: light.paddy_schlafen_alle
+      widget: ps_icon_licht
+      color_on: farbe_licht
+      color_off: farbe_aus
+
+  # --- Licht zum Antippen + Regler -------------------------------------------
+  ps_decke: !include
+    file: blueprints/licht_schalter.yaml
+    vars:
+      uid: ps_decke
+      entity: light.paddy_schlafen_decke
+      widget: ps_icon_decke
+
+  ps_decke_regler: !include
+    file: blueprints/licht_regler.yaml
+    vars:
+      uid: ps_decke_regler
+      entity: light.paddy_schlafen_decke
+      widget: ps_slider_decke
+
+  # --- Kopfzeile + Heizung ----------------------------------------------------
+  ps_klima: !include
+    file: blueprints/raumklima.yaml
+    vars:
+      uid: ps_klima
+      temp_entity: sensor.paddy_schlafen_temp_temperature
+      hum_entity: sensor.paddy_schlafen_temp_humidity
+      temp_widget: ps_label_temp
+      hum_widget: ps_label_feuchte
+
+  ps_heizung: !include
+    file: blueprints/heizung.yaml
+    vars:
+      uid: ps_heizung
+      climate: climate.paddy_schlafen_climate
+      arc: ps_arc_heizung
+      label_soll: ps_label_soll
+      label_ist: ps_label_ist
+      flamme: ps_icon_flamme
+      schritt: "0.5"

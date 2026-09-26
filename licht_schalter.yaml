@@ -1,0 +1,41 @@
+# =============================================================================
+#  BLUEPRINT: Licht-Icon zum Antippen
+#  Icon zeigt, ob das Licht an ist, und schaltet es beim Antippen um.
+#
+#  vars:
+#    uid        eindeutiger Name,  z. B. ps_licht_decke
+#    entity     HA-Licht,          z. B. light.paddy_schlafen_decke
+#    widget     ID des Icons (label oder button-label) im LVGL-Teil
+#
+#  IM LVGL-TEIL am Widget nötig (einmalig, von Hand nach dem Export):
+#      clickable: true            # nur bei label, bei button nicht nötig
+#      on_click:
+#        - script.execute: <uid>_toggle
+# =============================================================================
+binary_sensor:
+  - platform: homeassistant
+    id: ${uid}_ha
+    entity_id: ${entity}
+    internal: true
+    on_state:
+      trigger_on_initial_state: true
+      then:
+        - if:
+            condition:
+              binary_sensor.is_on: ${uid}_ha
+            then:
+              - lvgl.label.update:
+                  id: ${widget}
+                  text_color: farbe_licht
+            else:
+              - lvgl.label.update:
+                  id: ${widget}
+                  text_color: farbe_aus
+
+script:
+  - id: ${uid}_toggle
+    then:
+      - homeassistant.action:
+          action: light.toggle
+          data:
+            entity_id: ${entity}

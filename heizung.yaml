@@ -1,0 +1,89 @@
+# =============================================================================
+#  BLUEPRINT: Heizungsregler (climate) mit Bogen, Plus/Minus und Flamme
+#  Bogen (arc) im LVGL-Teil: min_value/max_value wie im Thermostat (z. B. 5 / 25)
+#  Hinweis: Der Bogen kann nur ganze Grad anzeigen, der Text zeigt 0.5er-Schritte.
+#
+#  vars:
+#    uid            eindeutiger Name, z. B. ps_heizung
+#    climate        z. B. climate.paddy_schlafen_climate
+#    arc            ID des Bogens (arc)
+#    label_soll     ID des großen Labels (Soll-Temperatur)
+#    label_ist      ID des kleinen Labels (Ist-Temperatur)
+#    flamme         ID des Flammen-Icons (label)
+#    schritt        Schrittweite für +/-, z. B. 0.5
+#
+#  IM LVGL-TEIL an den Knöpfen nötig (einmalig, von Hand nach dem Export):
+#    Plus:   on_click:
+#              - script.execute: <uid>_plus
+#    Minus:  on_click:
+#              - script.execute: <uid>_minus
+# =============================================================================
+sensor:
+  - platform: homeassistant          # Soll-Temperatur
+    id: ${uid}_soll
+    entity_id: ${climate}
+    attribute: temperature
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: ${label_soll}
+          text:
+            format: "%.1f°C"
+            args: [ 'x' ]
+      - lvgl.arc.update:
+          id: ${arc}
+          value: !lambda 'return x;'
+  - platform: homeassistant          # Ist-Temperatur
+    id: ${uid}_ist
+    entity_id: ${climate}
+    attribute: current_temperature
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: ${label_ist}
+          text:
+            format: "Ist %.1f°C"
+            args: [ 'x' ]
+
+text_sensor:
+  - platform: homeassistant          # heizt gerade? -> Flamme färben
+    id: ${uid}_aktion
+    entity_id: ${climate}
+    attribute: hvac_action
+    internal: true
+    on_value:
+      - if:
+          condition:
+            lambda: 'return x == "heating";'
+          then:
+            - lvgl.label.update:
+                id: ${flamme}
+                text_color: farbe_heizen
+          else:
+            - lvgl.label.update:
+                id: ${flamme}
+                text_color: farbe_aus
+
+script:
+  - id: ${uid}_plus
+    then:
+      - if:
+          condition:
+            lambda: 'return !isnan(id(${uid}_soll).state);'
+          then:
+            - homeassistant.action:
+                action: climate.set_temperature
+                data:
+                  entity_id: ${climate}
+                  temperature: !lambda 'return id(${uid}_soll).state + ${schritt};'
+  - id: ${uid}_minus
+    then:
+      - if:
+          condition:
+            lambda: 'return !isnan(id(${uid}_soll).state);'
+          then:
+            - homeassistant.action:
+                action: climate.set_temperature
+                data:
+                  entity_id: ${climate}
+                  temperature: !lambda 'return id(${uid}_soll).state - ${schritt};'

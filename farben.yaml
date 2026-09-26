@@ -1,0 +1,15 @@
+# =============================================================================
+#  FARBKONZEPT - einmal festlegen, überall per ID benutzen
+#  Wird wie die anderen Blueprints unter packages: eingebunden (ohne vars).
+# =============================================================================
+color:
+  - id: farbe_aus          # Grau: aus / zu / Leerlauf
+    hex: "707070"
+  - id: farbe_licht        # Gelb: Licht an
+    hex: "F3D420"
+  - id: farbe_offen        # Orange: Fenster / Tür offen
+    hex: "FF9500"
+  - id: farbe_heizen       # Rot-Orange: Heizung läuft
+    hex: "E0663A"
+  - id: farbe_storen       # Türkis: Storen
+    hex: "4FD1C5"

@@ -1,0 +1,31 @@
+# =============================================================================
+#  BLUEPRINT: Temperatur + Luftfeuchtigkeit als Text (z. B. Kopfzeile)
+#
+#  vars:
+#    uid             eindeutiger Name, z. B. ps_klima
+#    temp_entity     z. B. sensor.paddy_schlafen_temp_temperature
+#    hum_entity      z. B. sensor.paddy_schlafen_temp_humidity
+#    temp_widget     ID des Labels für die Temperatur
+#    hum_widget      ID des Labels für die Luftfeuchtigkeit
+# =============================================================================
+sensor:
+  - platform: homeassistant
+    id: ${uid}_temp
+    entity_id: ${temp_entity}
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: ${temp_widget}
+          text:
+            format: "%.1f°C"
+            args: [ 'x' ]
+  - platform: homeassistant
+    id: ${uid}_hum
+    entity_id: ${hum_entity}
+    internal: true
+    on_value:
+      - lvgl.label.update:
+          id: ${hum_widget}
+          text:
+            format: "%.0f %%"
+            args: [ 'x' ]

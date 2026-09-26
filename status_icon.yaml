@@ -1,0 +1,32 @@
+# =============================================================================
+#  BLUEPRINT: Status-Icon (Fenster, Tür, Licht an im Raum, ...)
+#  Färbt ein Icon je nach Zustand einer HA-Entität ein.
+#  Funktioniert mit allem, was in HA "on"/"off" hat:
+#  binary_sensor (Fenster/Tür: on = offen), light, switch, Lichtgruppe.
+#
+#  vars:
+#    uid        eindeutiger Name, z. B. ps_fenster_links
+#    entity     HA-Entität,       z. B. binary_sensor.paddy_schlafen_fensterlinks
+#    widget     ID des Icons (label) im LVGL-Teil
+#    color_on   Farb-ID aus farben.yaml für "an/offen"
+#    color_off  Farb-ID aus farben.yaml für "aus/zu"
+# =============================================================================
+binary_sensor:
+  - platform: homeassistant
+    id: ${uid}_ha
+    entity_id: ${entity}
+    internal: true
+    on_state:
+      trigger_on_initial_state: true
+      then:
+        - if:
+            condition:
+              binary_sensor.is_on: ${uid}_ha
+            then:
+              - lvgl.label.update:
+                  id: ${widget}
+                  text_color: ${color_on}
+            else:
+              - lvgl.label.update:
+                  id: ${widget}
+                  text_color: ${color_off}

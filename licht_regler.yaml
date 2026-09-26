@@ -1,0 +1,47 @@
+# =============================================================================
+#  BLUEPRINT: Helligkeitsregler (Slider) für ein Licht
+#  Slider zeigt die aktuelle Helligkeit und stellt sie beim Loslassen ein.
+#  Slider im LVGL-Teil: min_value: 0, max_value: 255
+#
+#  vars:
+#    uid        eindeutiger Name, z. B. wo_sofalicht
+#    entity     HA-Licht,         z. B. light.wohnen_sofa
+#    widget     ID des Sliders im LVGL-Teil
+#
+#  IM LVGL-TEIL am Slider nötig (einmalig, von Hand nach dem Export):
+#      on_release:
+#        - script.execute:
+#            id: <uid>_set
+#            wert: !lambda 'return (int) x;'
+# =============================================================================
+sensor:
+  - platform: homeassistant
+    id: ${uid}_hell
+    entity_id: ${entity}
+    attribute: brightness
+    internal: true
+    on_value:
+      - lvgl.slider.update:
+          id: ${widget}
+          value: !lambda 'return isnan(x) ? 0 : x;'
+
+binary_sensor:
+  - platform: homeassistant     # Licht aus -> Regler auf 0
+    id: ${uid}_an
+    entity_id: ${entity}
+    internal: true
+    on_release:
+      - lvgl.slider.update:
+          id: ${widget}
+          value: 0
+
+script:
+  - id: ${uid}_set
+    parameters:
+      wert: int
+    then:
+      - homeassistant.action:
+          action: light.turn_on
+          data:
+            entity_id: ${entity}
+            brightness: !lambda 'return wert;'
