@@ -1,6 +1,4 @@
 # esphome
-esphome vgfl blueprints
-
 
 # ESPHome-LVGL Blueprints
 
